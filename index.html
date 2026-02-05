@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAYEDİ - Sistem Fiyat Teklif Formu</title>
+    <title>BAYEDİ - Sistem Fiyat Teklif Formu v2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #1a365d; --primary-light: #2c5282; --secondary: #e53e3e; --accent: #38a169; --bg: #f7fafc; --card: #ffffff; --text: #2d3748; --text-light: #718096; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        :root { --primary: #1a365d; --primary-light: #2c5282; --secondary: #e53e3e; --accent: #38a169; --bg: #f7fafc; --card: #ffffff; --text: #2d3748; --text-light: #718096; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); --fabric: #805ad5; --motor: #dd6b20; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
         .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
         .logo { font-size: 1.8rem; font-weight: 700; letter-spacing: 2px; }
@@ -25,11 +25,15 @@
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         .card { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.5rem; }
         .card-title { font-size: 1.2rem; font-weight: 600; color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+        .card-title.fabric { color: var(--fabric); border-bottom-color: var(--fabric); }
+        .card-title.motor { color: var(--motor); border-bottom-color: var(--motor); }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
         .form-group label { font-weight: 500; color: var(--text); font-size: 0.9rem; }
         .form-group input, .form-group select { padding: 0.75rem 1rem; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+        .form-group input.fabric-input:focus { border-color: var(--fabric); }
+        .form-group input.motor-input:focus { border-color: var(--motor); }
         .system-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
         .system-card { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s; text-align: center; }
         .system-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
@@ -41,12 +45,16 @@
         .results-table th { background: var(--bg); font-weight: 600; color: var(--primary); }
         .results-table tr:hover { background: #f7fafc; }
         .results-table .total-row { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; font-weight: 600; }
+        .results-table .total-row.fabric { background: linear-gradient(135deg, var(--fabric) 0%, #9f7aea 100%); }
+        .results-table .total-row.motor { background: linear-gradient(135deg, var(--motor) 0%, #ed8936 100%); }
         .results-table .total-row td { border-bottom: none; }
-        .summary-box { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; border-radius: 12px; padding: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; }
+        .summary-box { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; border-radius: 12px; padding: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1.5rem; }
         .summary-item { text-align: center; }
-        .summary-item .label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem; }
-        .summary-item .value { font-size: 1.8rem; font-weight: 700; }
-        .summary-item .unit { font-size: 0.9rem; opacity: 0.8; }
+        .summary-item .label { font-size: 0.8rem; opacity: 0.9; margin-bottom: 0.5rem; }
+        .summary-item .value { font-size: 1.5rem; font-weight: 700; }
+        .summary-item .unit { font-size: 0.85rem; opacity: 0.8; }
+        .summary-item.fabric { background: rgba(128, 90, 213, 0.3); border-radius: 8px; padding: 0.5rem; }
+        .summary-item.motor { background: rgba(221, 107, 32, 0.3); border-radius: 8px; padding: 0.5rem; }
         .admin-table { width: 100%; border-collapse: collapse; }
         .admin-table th, .admin-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
         .admin-table th { background: var(--primary); color: white; position: sticky; top: 0; }
@@ -63,6 +71,8 @@
         .modal h3 { margin-bottom: 1rem; color: var(--primary); }
         .modal-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; }
         .customer-section { background: #fffaf0; border: 2px solid #fbd38d; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .fabric-section { background: #faf5ff; border: 2px solid #d6bcfa; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .motor-section { background: #fffaf0; border: 2px solid #fbd38d; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
         .footer-notes { background: #fff5f5; border-left: 4px solid var(--secondary); padding: 1rem 1.5rem; margin-top: 2rem; border-radius: 0 8px 8px 0; }
         .footer-notes h4 { color: var(--secondary); margin-bottom: 0.75rem; }
         .footer-notes ul { list-style: none; font-size: 0.85rem; color: var(--text-light); }
@@ -71,6 +81,10 @@
         .table-container { max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
         .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--accent); color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow); animation: slideIn 0.3s ease; z-index: 1001; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .optional-badge { background: var(--text-light); color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-left: 0.5rem; }
+        .checkbox-group { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+        .checkbox-group label { cursor: pointer; font-weight: 500; }
         @media (max-width: 768px) { .header { flex-direction: column; gap: 1rem; } .nav-tabs { overflow-x: auto; padding: 0 1rem; } .container { padding: 1rem; } .system-grid { grid-template-columns: 1fr; } .summary-box { grid-template-columns: repeat(2, 1fr); } }
         @media print { .header-controls, .nav-tabs, .btn { display: none !important; } .card { box-shadow: none; border: 1px solid #ddd; } }
     </style>
@@ -80,8 +94,8 @@
     <script type="text/babel">
         const { useState, useMemo } = React;
         const translations = {
-            tr: { title: "BAYEDİ - Sistem Fiyat Teklif Formu", calculator: "Fiyat Hesaplama", admin: "Admin Paneli", products: "Ürün Listesi", selectSystem: "Sistem Seçimi", dimensions: "Boyutlar", width: "Genişlik (mm)", height: "Yükseklik (mm)", quantity: "Sistem Adeti", profiles: "Profiller", accessories: "Aparatlar", totalPrice: "Toplam Fiyat", unitPrice: "1 Sistem Fiyatı", sqmPrice: "m² Fiyatı", totalKg: "Toplam Ağırlık", area: "Alan", code: "Kod", product: "Ürün", gramaj: "Gramaj (kg/m)", paint: "Boya", totalWeight: "Toplam Kg", pricePerUnit: "Birim Fiyat (€)", amount: "Tutar (€)", qty: "Adet", customerInfo: "Müşteri Bilgileri", companyName: "Firma Adı", phone: "Telefon", email: "E-posta", orderNo: "Sipariş No", notes: "Önemli Notlar", note1: "Teslim yeri İstanbul Ataşehir fabrikamızdır.", note2: "Nakliye bedeli müşteriye aittir.", note3: "Profil gramajları ±%5 tolerans içerebilir.", note4: "Boyalı siparişlerde gramaj %3 artış gösterebilir.", updatePrices: "Fiyatları Güncelle", priceUpdated: "Fiyatlar güncellendi!", login: "Giriş", password: "Şifre", loginBtn: "Giriş Yap", logout: "Çıkış", wrongPassword: "Yanlış şifre!", category: "Kategori", unit: "Birim", search: "Ara...", byd100Desc: "100mm Dikey Zip Perde Sistemi", byd125Desc: "125mm Dikey Zip Perde Sistemi", sky1500Desc: "Yaylı Tavan Perde Sistemi", sky1600Desc: "Amortisörlü Tavan Sistemi", printQuote: "Teklif Yazdır", newQuote: "Yeni Teklif", paintCode: "Boya Kodu" },
-            en: { title: "BAYEDİ - System Price Quote Form", calculator: "Price Calculator", admin: "Admin Panel", products: "Product List", selectSystem: "Select System", dimensions: "Dimensions", width: "Width (mm)", height: "Height (mm)", quantity: "System Quantity", profiles: "Profiles", accessories: "Accessories", totalPrice: "Total Price", unitPrice: "Unit Price", sqmPrice: "Price per m²", totalKg: "Total Weight", area: "Area", code: "Code", product: "Product", gramaj: "Weight (kg/m)", paint: "Paint", totalWeight: "Total Kg", pricePerUnit: "Unit Price (€)", amount: "Amount (€)", qty: "Qty", customerInfo: "Customer Information", companyName: "Company Name", phone: "Phone", email: "Email", orderNo: "Order No", notes: "Important Notes", note1: "Delivery point is our Istanbul Ataşehir factory.", note2: "Shipping cost is customer's responsibility.", note3: "Profile weights may vary by ±5%.", note4: "Painted orders may show 3% weight increase.", updatePrices: "Update Prices", priceUpdated: "Prices updated!", login: "Login", password: "Password", loginBtn: "Login", logout: "Logout", wrongPassword: "Wrong password!", category: "Category", unit: "Unit", search: "Search...", byd100Desc: "100mm Vertical Zip Blind System", byd125Desc: "125mm Vertical Zip Blind System", sky1500Desc: "Spring Ceiling Blind System", sky1600Desc: "Shock Absorber Ceiling System", printQuote: "Print Quote", newQuote: "New Quote", paintCode: "Paint Code" }
+            tr: { title: "BAYEDİ - Sistem Fiyat Teklif Formu", calculator: "Fiyat Hesaplama", admin: "Admin Paneli", products: "Ürün Listesi", selectSystem: "Sistem Seçimi", dimensions: "Boyutlar", width: "Genişlik (mm)", height: "Yükseklik (mm)", quantity: "Sistem Adeti", profiles: "Profiller", accessories: "Aparatlar", fabric: "Kumaş", motor: "Motor & Aksesuar", totalPrice: "Toplam Fiyat", unitPrice: "1 Sistem Fiyatı", sqmPrice: "m² Fiyatı", totalKg: "Toplam Ağırlık", area: "Alan", code: "Kod", product: "Ürün", gramaj: "Gramaj (kg/m)", paint: "Boya", totalWeight: "Toplam Kg", pricePerUnit: "Birim Fiyat (€)", amount: "Tutar (€)", qty: "Adet", customerInfo: "Müşteri Bilgileri", companyName: "Firma Adı", phone: "Telefon", email: "E-posta", orderNo: "Sipariş No", notes: "Önemli Notlar", note1: "Teslim yeri İstanbul Ataşehir fabrikamızdır.", note2: "Nakliye bedeli müşteriye aittir.", note3: "Profil gramajları ±%5 tolerans içerebilir.", note4: "Boyalı siparişlerde gramaj %3 artış gösterebilir.", updatePrices: "Fiyatları Güncelle", priceUpdated: "Fiyatlar güncellendi!", login: "Giriş", password: "Şifre", loginBtn: "Giriş Yap", logout: "Çıkış", wrongPassword: "Yanlış şifre!", category: "Kategori", unit: "Birim", search: "Ara...", byd100Desc: "100mm Dikey Zip Perde Sistemi", byd125Desc: "125mm Dikey Zip Perde Sistemi", sky1500Desc: "Yaylı Tavan Perde Sistemi", sky1600Desc: "Amortisörlü Tavan Sistemi", printQuote: "Teklif Yazdır", newQuote: "Yeni Teklif", paintCode: "Boya Kodu", optional: "Opsiyonel", includeFabric: "Kumaş Dahil Et", includeMotor: "Motor Dahil Et", fabricWidth: "Kumaş Eni (mm)", fabricHeight: "Kumaş Boyu (mm)", fabricPrice: "Kumaş m² Fiyatı (€)", fabricQty: "Kumaş Adeti", fabricTotal: "Kumaş Toplam", motorType: "Motor Tipi", motorPrice: "Motor Fiyatı (€)", motorQty: "Motor Adeti", remoteType: "Kumanda Tipi", remotePrice: "Kumanda Fiyatı (€)", remoteQty: "Kumanda Adeti", motorTotal: "Motor Toplam", grandTotal: "GENEL TOPLAM", useSystemDimensions: "Sistem boyutlarını kullan" },
+            en: { title: "BAYEDİ - System Price Quote Form", calculator: "Price Calculator", admin: "Admin Panel", products: "Product List", selectSystem: "Select System", dimensions: "Dimensions", width: "Width (mm)", height: "Height (mm)", quantity: "System Quantity", profiles: "Profiles", accessories: "Accessories", fabric: "Fabric", motor: "Motor & Accessories", totalPrice: "Total Price", unitPrice: "Unit Price", sqmPrice: "Price per m²", totalKg: "Total Weight", area: "Area", code: "Code", product: "Product", gramaj: "Weight (kg/m)", paint: "Paint", totalWeight: "Total Kg", pricePerUnit: "Unit Price (€)", amount: "Amount (€)", qty: "Qty", customerInfo: "Customer Information", companyName: "Company Name", phone: "Phone", email: "Email", orderNo: "Order No", notes: "Important Notes", note1: "Delivery point is our Istanbul Ataşehir factory.", note2: "Shipping cost is customer's responsibility.", note3: "Profile weights may vary by ±5%.", note4: "Painted orders may show 3% weight increase.", updatePrices: "Update Prices", priceUpdated: "Prices updated!", login: "Login", password: "Password", loginBtn: "Login", logout: "Logout", wrongPassword: "Wrong password!", category: "Category", unit: "Unit", search: "Search...", byd100Desc: "100mm Vertical Zip Blind System", byd125Desc: "125mm Vertical Zip Blind System", sky1500Desc: "Spring Ceiling Blind System", sky1600Desc: "Shock Absorber Ceiling System", printQuote: "Print Quote", newQuote: "New Quote", paintCode: "Paint Code", optional: "Optional", includeFabric: "Include Fabric", includeMotor: "Include Motor", fabricWidth: "Fabric Width (mm)", fabricHeight: "Fabric Height (mm)", fabricPrice: "Fabric Price per m² (€)", fabricQty: "Fabric Quantity", fabricTotal: "Fabric Total", motorType: "Motor Type", motorPrice: "Motor Price (€)", motorQty: "Motor Quantity", remoteType: "Remote Type", remotePrice: "Remote Price (€)", remoteQty: "Remote Quantity", motorTotal: "Motor Total", grandTotal: "GRAND TOTAL", useSystemDimensions: "Use system dimensions" }
         };
         const initialProducts = [
             { code: "10614", name: "ALÜMİNYUM KASA", nameEn: "Aluminum Box", category: "PROFIL", system: "BYD100", unit: "mt", gramaj: 1.401, price: 4.8, paintType: "ALU" },
@@ -128,13 +142,13 @@
             const [activeTab, setActiveTab] = useState('calculator');
             const [isAdmin, setIsAdmin] = useState(false);
             const [showLoginModal, setShowLoginModal] = useState(false);
-            const [products, setProducts] = useState(() => { const saved = localStorage.getItem('bayedi_products'); return saved ? JSON.parse(saved) : initialProducts; });
+            const [products, setProducts] = useState(() => { const saved = localStorage.getItem('bayedi_products_v2'); return saved ? JSON.parse(saved) : initialProducts; });
             const [toast, setToast] = useState(null);
             const t = translations[lang];
             const showToast = (message) => { setToast(message); setTimeout(() => setToast(null), 3000); };
             const handleLogin = (password) => { if (password === 'bayedi2024') { setIsAdmin(true); setShowLoginModal(false); showToast(lang === 'tr' ? 'Giriş başarılı!' : 'Login successful!'); } else { alert(t.wrongPassword); } };
-            const updateProduct = (code, field, value) => { setProducts(prev => { const updated = prev.map(p => p.code === code ? { ...p, [field]: parseFloat(value) || 0 } : p); localStorage.setItem('bayedi_products', JSON.stringify(updated)); return updated; }); };
-            const saveAllPrices = () => { localStorage.setItem('bayedi_products', JSON.stringify(products)); showToast(t.priceUpdated); };
+            const updateProduct = (code, field, value) => { setProducts(prev => { const updated = prev.map(p => p.code === code ? { ...p, [field]: parseFloat(value) || 0 } : p); localStorage.setItem('bayedi_products_v2', JSON.stringify(updated)); return updated; }); };
+            const saveAllPrices = () => { localStorage.setItem('bayedi_products_v2', JSON.stringify(products)); showToast(t.priceUpdated); };
             return (
                 <div>
                     <header className="header">
@@ -166,7 +180,42 @@
             const [quantity, setQuantity] = useState(1);
             const [paintCode, setPaintCode] = useState('7016 TXT');
             const [customer, setCustomer] = useState({ company: '', phone: '', email: '' });
+            // Fabric state
+            const [includeFabric, setIncludeFabric] = useState(false);
+            const [useSystemDimForFabric, setUseSystemDimForFabric] = useState(true);
+            const [fabricWidth, setFabricWidth] = useState(0);
+            const [fabricHeight, setFabricHeight] = useState(0);
+            const [fabricPrice, setFabricPrice] = useState(0);
+            const [fabricQty, setFabricQty] = useState(1);
+            // Motor state
+            const [includeMotor, setIncludeMotor] = useState(false);
+            const [motorType, setMotorType] = useState('Somfy');
+            const [motorPrice, setMotorPrice] = useState(0);
+            const [motorQty, setMotorQty] = useState(1);
+            const [remoteType, setRemoteType] = useState('Standart');
+            const [remotePrice, setRemotePrice] = useState(0);
+            const [remoteQty, setRemoteQty] = useState(0);
+
             const orderNo = useMemo(() => { const now = new Date(); return `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`; }, []);
+
+            // Calculate fabric
+            const fabricCalc = useMemo(() => {
+                if (!includeFabric) return { m2: 0, total: 0 };
+                const fWidth = useSystemDimForFabric ? width : fabricWidth;
+                const fHeight = useSystemDimForFabric ? height : fabricHeight;
+                const m2 = (fWidth / 1000) * (fHeight / 1000);
+                const total = m2 * fabricQty * fabricPrice * quantity;
+                return { m2, total, fWidth, fHeight };
+            }, [includeFabric, useSystemDimForFabric, width, height, fabricWidth, fabricHeight, fabricPrice, fabricQty, quantity]);
+
+            // Calculate motor
+            const motorCalc = useMemo(() => {
+                if (!includeMotor) return { motorTotal: 0, remoteTotal: 0, total: 0 };
+                const motorTotal = motorPrice * motorQty * quantity;
+                const remoteTotal = remotePrice * remoteQty * quantity;
+                return { motorTotal, remoteTotal, total: motorTotal + remoteTotal };
+            }, [includeMotor, motorPrice, motorQty, remotePrice, remoteQty, quantity]);
+
             const calculation = useMemo(() => {
                 const config = systemConfigs[selectedSystem];
                 const widthM = width / 1000;
@@ -193,9 +242,11 @@
                     totalAccessoryCost += cost;
                     accessoryResults.push({ ...acc, calculatedQty: qty, cost });
                 });
-                const totalPrice = totalProfileCost + totalAccessoryCost;
-                return { profiles: profileResults, accessories: accessoryResults, totalProfileKg, totalProfileCost, totalAccessoryCost, totalPrice, unitPrice: totalPrice / quantity, sqmPrice: totalPrice / area, area };
-            }, [selectedSystem, width, height, quantity, products]);
+                const baseTotal = totalProfileCost + totalAccessoryCost;
+                const grandTotal = baseTotal + fabricCalc.total + motorCalc.total;
+                return { profiles: profileResults, accessories: accessoryResults, totalProfileKg, totalProfileCost, totalAccessoryCost, baseTotal, grandTotal, unitPrice: grandTotal / quantity, sqmPrice: grandTotal / area, area };
+            }, [selectedSystem, width, height, quantity, products, fabricCalc, motorCalc]);
+
             const systems = [{ key: 'BYD100', desc: t.byd100Desc }, { key: 'BYD125', desc: t.byd125Desc }, { key: 'SKY1500', desc: t.sky1500Desc }, { key: 'SKY1600', desc: t.sky1600Desc }];
             return (
                 <div>
@@ -223,13 +274,86 @@
                             <div className="form-group"><label>{t.paintCode}</label><select value={paintCode} onChange={e => setPaintCode(e.target.value)}><option value="7016 TXT">RAL 7016 TXT</option><option value="9016 MAT">RAL 9016 MAT</option><option value="9005 MAT">RAL 9005 MAT</option></select></div>
                         </div>
                     </div>
+
+                    {/* KUMAŞ SECTION */}
+                    <div className="fabric-section">
+                        <div className="card-title fabric"><i className="fas fa-scroll"></i> {t.fabric} <span className="optional-badge">{t.optional}</span></div>
+                        <div className="checkbox-group">
+                            <input type="checkbox" id="includeFabric" checked={includeFabric} onChange={e => setIncludeFabric(e.target.checked)} />
+                            <label htmlFor="includeFabric">{t.includeFabric}</label>
+                        </div>
+                        {includeFabric && (
+                            <div>
+                                <div className="checkbox-group" style={{marginBottom: '1rem'}}>
+                                    <input type="checkbox" id="useSystemDim" checked={useSystemDimForFabric} onChange={e => setUseSystemDimForFabric(e.target.checked)} />
+                                    <label htmlFor="useSystemDim">{t.useSystemDimensions} ({width}mm x {height}mm)</label>
+                                </div>
+                                <div className="form-grid">
+                                    {!useSystemDimForFabric && (
+                                        <>
+                                            <div className="form-group"><label>{t.fabricWidth}</label><input type="number" className="fabric-input" value={fabricWidth} onChange={e => setFabricWidth(parseInt(e.target.value) || 0)} min="0" /></div>
+                                            <div className="form-group"><label>{t.fabricHeight}</label><input type="number" className="fabric-input" value={fabricHeight} onChange={e => setFabricHeight(parseInt(e.target.value) || 0)} min="0" /></div>
+                                        </>
+                                    )}
+                                    <div className="form-group"><label>{t.fabricPrice}</label><input type="number" className="fabric-input" value={fabricPrice} onChange={e => setFabricPrice(parseFloat(e.target.value) || 0)} min="0" step="0.01" /></div>
+                                    <div className="form-group"><label>{t.fabricQty}</label><input type="number" className="fabric-input" value={fabricQty} onChange={e => setFabricQty(parseInt(e.target.value) || 1)} min="1" /></div>
+                                </div>
+                                <table className="results-table" style={{marginTop: '1rem'}}>
+                                    <thead><tr><th>{t.product}</th><th>m²</th><th>{t.qty}</th><th>{t.pricePerUnit}</th><th>{t.amount}</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>{t.fabric}</td><td>{fabricCalc.m2.toFixed(2)}</td><td>{fabricQty * quantity}</td><td>{fabricPrice.toFixed(2)} €/m²</td><td><strong>{fabricCalc.total.toFixed(2)} €</strong></td></tr>
+                                        <tr className="total-row fabric"><td colSpan="4">{t.fabricTotal}</td><td><strong>{fabricCalc.total.toFixed(2)} €</strong></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* MOTOR SECTION */}
+                    <div className="motor-section">
+                        <div className="card-title motor"><i className="fas fa-cog"></i> {t.motor} <span className="optional-badge">{t.optional}</span></div>
+                        <div className="checkbox-group">
+                            <input type="checkbox" id="includeMotor" checked={includeMotor} onChange={e => setIncludeMotor(e.target.checked)} />
+                            <label htmlFor="includeMotor">{t.includeMotor}</label>
+                        </div>
+                        {includeMotor && (
+                            <div>
+                                <div className="form-grid">
+                                    <div className="form-group"><label>{t.motorType}</label><select className="motor-input" value={motorType} onChange={e => setMotorType(e.target.value)}><option value="Somfy">Somfy</option><option value="Mosel">Mosel</option><option value="Nice">Nice</option><option value="Diğer">Diğer / Other</option></select></div>
+                                    <div className="form-group"><label>{t.motorPrice}</label><input type="number" className="motor-input" value={motorPrice} onChange={e => setMotorPrice(parseFloat(e.target.value) || 0)} min="0" step="0.01" /></div>
+                                    <div className="form-group"><label>{t.motorQty}</label><input type="number" className="motor-input" value={motorQty} onChange={e => setMotorQty(parseInt(e.target.value) || 0)} min="0" /></div>
+                                </div>
+                                <div className="form-grid" style={{marginTop: '1rem'}}>
+                                    <div className="form-group"><label>{t.remoteType}</label><select className="motor-input" value={remoteType} onChange={e => setRemoteType(e.target.value)}><option value="Standart">Standart</option><option value="Timer">Timer'lı</option><option value="Wifi">Wifi</option></select></div>
+                                    <div className="form-group"><label>{t.remotePrice}</label><input type="number" className="motor-input" value={remotePrice} onChange={e => setRemotePrice(parseFloat(e.target.value) || 0)} min="0" step="0.01" /></div>
+                                    <div className="form-group"><label>{t.remoteQty}</label><input type="number" className="motor-input" value={remoteQty} onChange={e => setRemoteQty(parseInt(e.target.value) || 0)} min="0" /></div>
+                                </div>
+                                <table className="results-table" style={{marginTop: '1rem'}}>
+                                    <thead><tr><th>{t.product}</th><th>{t.qty}</th><th>{t.pricePerUnit}</th><th>{t.amount}</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Motor ({motorType})</td><td>{motorQty * quantity}</td><td>{motorPrice.toFixed(2)} €</td><td><strong>{motorCalc.motorTotal.toFixed(2)} €</strong></td></tr>
+                                        <tr><td>{lang === 'tr' ? 'Kumanda' : 'Remote'} ({remoteType})</td><td>{remoteQty * quantity}</td><td>{remotePrice.toFixed(2)} €</td><td><strong>{motorCalc.remoteTotal.toFixed(2)} €</strong></td></tr>
+                                        <tr className="total-row motor"><td colSpan="3">{t.motorTotal}</td><td><strong>{motorCalc.total.toFixed(2)} €</strong></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* SUMMARY */}
                     <div className="summary-box">
                         <div className="summary-item"><div className="label">{t.area}</div><div className="value">{calculation.area.toFixed(2)}</div><div className="unit">m²</div></div>
                         <div className="summary-item"><div className="label">{t.totalKg}</div><div className="value">{calculation.totalProfileKg.toFixed(2)}</div><div className="unit">kg</div></div>
+                        <div className="summary-item"><div className="label">{t.profiles}</div><div className="value">{calculation.totalProfileCost.toFixed(2)}</div><div className="unit">€</div></div>
+                        <div className="summary-item"><div className="label">{t.accessories}</div><div className="value">{calculation.totalAccessoryCost.toFixed(2)}</div><div className="unit">€</div></div>
+                        {includeFabric && <div className="summary-item fabric"><div className="label">{t.fabric}</div><div className="value">{fabricCalc.total.toFixed(2)}</div><div className="unit">€</div></div>}
+                        {includeMotor && <div className="summary-item motor"><div className="label">{t.motor}</div><div className="value">{motorCalc.total.toFixed(2)}</div><div className="unit">€</div></div>}
                         <div className="summary-item"><div className="label">{t.unitPrice}</div><div className="value">{calculation.unitPrice.toFixed(2)}</div><div className="unit">€</div></div>
                         <div className="summary-item"><div className="label">{t.sqmPrice}</div><div className="value">{calculation.sqmPrice.toFixed(2)}</div><div className="unit">€/m²</div></div>
-                        <div className="summary-item"><div className="label">{t.totalPrice}</div><div className="value">{calculation.totalPrice.toFixed(2)}</div><div className="unit">€</div></div>
+                        <div className="summary-item" style={{background: 'rgba(255,255,255,0.2)', borderRadius: '8px', padding: '0.5rem'}}><div className="label">{t.grandTotal}</div><div className="value" style={{fontSize: '2rem'}}>{calculation.grandTotal.toFixed(2)}</div><div className="unit">€</div></div>
                     </div>
+
+                    {/* PROFILES TABLE */}
                     <div className="card" style={{marginTop: '1.5rem'}}>
                         <div className="card-title"><i className="fas fa-bars"></i> {t.profiles}</div>
                         <table className="results-table">
@@ -240,6 +364,8 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {/* ACCESSORIES TABLE */}
                     <div className="card">
                         <div className="card-title"><i className="fas fa-puzzle-piece"></i> {t.accessories}</div>
                         <table className="results-table">
@@ -250,6 +376,7 @@
                             </tbody>
                         </table>
                     </div>
+
                     <div className="footer-notes"><h4><i className="fas fa-exclamation-triangle"></i> {t.notes}</h4><ul><li>{t.note1}</li><li>{t.note2}</li><li>{t.note3}</li><li>{t.note4}</li></ul></div>
                     <div style={{marginTop: '1.5rem', display: 'flex', gap: '1rem'}}><button className="btn btn-primary" onClick={() => window.print()}><i className="fas fa-print"></i> {t.printQuote}</button><button className="btn btn-success" onClick={() => window.location.reload()}><i className="fas fa-plus"></i> {t.newQuote}</button></div>
                 </div>
