@@ -1,4 +1,4 @@
-# BAYEDİ - Sistem Fiyat Teklif Formu
+# BAYEDİ - Sistem Fiyat Teklif Formu v2
 
 Alüminyum perde ve tavan sistemleri için profesyonel fiyat teklif uygulaması.
 
@@ -19,6 +19,20 @@ Uygulamayı doğrudan tarayıcınızda açabilirsiniz: [index.html](index.html)
 - Otomatik profil ağırlık hesabı (Gramaj × Uzunluk × Birim Fiyat)
 - Aparat ve aksesuar hesabı
 - m² fiyatı, birim fiyat ve toplam fiyat gösterimi
+
+### 🧵 Kumaş Bölümü (v2 - YENİ)
+- Opsiyonel kumaş ekleme
+- Sistem boyutlarını kullanma veya özel boyut girişi
+- m² başına fiyat girişi
+- Kumaş adeti belirleme
+- Otomatik toplam hesaplama
+
+### ⚙️ Motor & Kumanda Bölümü (v2 - YENİ)
+- Motor tipi seçimi (Somfy, Mosel, Nice, Diğer)
+- Motor fiyatı ve adeti
+- Kumanda tipi seçimi (Standart, Timer'lı, Wifi)
+- Kumanda fiyatı ve adeti
+- Otomatik toplam hesaplama
 
 ### Admin Paneli
 - Şifre korumalı erişim (Şifre: `bayedi2024`)
@@ -57,7 +71,9 @@ git clone https://github.com/thorrangonak/bayilogic.git
 2. Boyutları girin (Genişlik mm, Yükseklik mm)
 3. Sistem adedini belirleyin
 4. Boya kodunu seçin
-5. Fiyat otomatik hesaplanır
+5. (Opsiyonel) Kumaş eklemek için "Kumaş Dahil Et" kutusunu işaretleyin
+6. (Opsiyonel) Motor eklemek için "Motor Dahil Et" kutusunu işaretleyin
+7. Fiyat otomatik hesaplanır
 
 ### Admin Girişi
 - Sağ üst köşedeki 🔒 ikonuna tıklayın
