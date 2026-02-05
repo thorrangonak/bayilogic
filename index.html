@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAYEDİ - Sistem Fiyat Teklif Formu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #1a365d; --primary-light: #2c5282; --secondary: #e53e3e; --accent: #38a169; --bg: #f7fafc; --card: #ffffff; --text: #2d3748; --text-light: #718096; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+        .logo { font-size: 1.8rem; font-weight: 700; letter-spacing: 2px; }
+        .logo span { color: #fbd38d; }
+        .header-controls { display: flex; gap: 1rem; align-items: center; }
+        .lang-btn, .admin-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
+        .lang-btn:hover, .admin-btn:hover { background: rgba(255,255,255,0.2); }
+        .nav-tabs { display: flex; background: white; border-bottom: 2px solid var(--border); padding: 0 2rem; }
+        .nav-tab { padding: 1rem 1.5rem; cursor: pointer; border-bottom: 3px solid transparent; color: var(--text-light); font-weight: 500; transition: all 0.3s; }
+        .nav-tab:hover { color: var(--primary); }
+        .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .card { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card-title { font-size: 1.2rem; font-weight: 600; color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { font-weight: 500; color: var(--text); font-size: 0.9rem; }
+        .form-group input, .form-group select { padding: 0.75rem 1rem; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+        .system-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .system-card { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .system-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+        .system-card.selected { border-color: var(--primary); background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%); }
+        .system-card h3 { color: var(--primary); margin-bottom: 0.5rem; }
+        .system-card p { color: var(--text-light); font-size: 0.9rem; }
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .results-table th, .results-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        .results-table th { background: var(--bg); font-weight: 600; color: var(--primary); }
+        .results-table tr:hover { background: #f7fafc; }
+        .results-table .total-row { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; font-weight: 600; }
+        .results-table .total-row td { border-bottom: none; }
+        .summary-box { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; border-radius: 12px; padding: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; }
+        .summary-item { text-align: center; }
+        .summary-item .label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem; }
+        .summary-item .value { font-size: 1.8rem; font-weight: 700; }
+        .summary-item .unit { font-size: 0.9rem; opacity: 0.8; }
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th, .admin-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+        .admin-table th { background: var(--primary); color: white; position: sticky; top: 0; }
+        .admin-table input { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; }
+        .admin-table input:focus { outline: none; border-color: var(--primary); }
+        .category-header { background: #edf2f7; font-weight: 600; color: var(--primary); }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-success { background: var(--accent); color: white; }
+        .btn-success:hover { background: #2f855a; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: white; border-radius: 12px; padding: 2rem; max-width: 400px; width: 90%; }
+        .modal h3 { margin-bottom: 1rem; color: var(--primary); }
+        .modal-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; }
+        .customer-section { background: #fffaf0; border: 2px solid #fbd38d; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .footer-notes { background: #fff5f5; border-left: 4px solid var(--secondary); padding: 1rem 1.5rem; margin-top: 2rem; border-radius: 0 8px 8px 0; }
+        .footer-notes h4 { color: var(--secondary); margin-bottom: 0.75rem; }
+        .footer-notes ul { list-style: none; font-size: 0.85rem; color: var(--text-light); }
+        .footer-notes li { padding: 0.25rem 0; padding-left: 1rem; position: relative; }
+        .footer-notes li::before { content: "•"; position: absolute; left: 0; color: var(--secondary); }
+        .table-container { max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--accent); color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow); animation: slideIn 0.3s ease; z-index: 1001; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @media (max-width: 768px) { .header { flex-direction: column; gap: 1rem; } .nav-tabs { overflow-x: auto; padding: 0 1rem; } .container { padding: 1rem; } .system-grid { grid-template-columns: 1fr; } .summary-box { grid-template-columns: repeat(2, 1fr); } }
+        @media print { .header-controls, .nav-tabs, .btn { display: none !important; } .card { box-shadow: none; border: 1px solid #ddd; } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+        const translations = {
+            tr: { title: "BAYEDİ - Sistem Fiyat Teklif Formu", calculator: "Fiyat Hesaplama", admin: "Admin Paneli", products: "Ürün Listesi", selectSystem: "Sistem Seçimi", dimensions: "Boyutlar", width: "Genişlik (mm)", height: "Yükseklik (mm)", quantity: "Sistem Adeti", profiles: "Profiller", accessories: "Aparatlar", totalPrice: "Toplam Fiyat", unitPrice: "1 Sistem Fiyatı", sqmPrice: "m² Fiyatı", totalKg: "Toplam Ağırlık", area: "Alan", code: "Kod", product: "Ürün", gramaj: "Gramaj (kg/m)", paint: "Boya", totalWeight: "Toplam Kg", pricePerUnit: "Birim Fiyat (€)", amount: "Tutar (€)", qty: "Adet", customerInfo: "Müşteri Bilgileri", companyName: "Firma Adı", phone: "Telefon", email: "E-posta", orderNo: "Sipariş No", notes: "Önemli Notlar", note1: "Teslim yeri İstanbul Ataşehir fabrikamızdır.", note2: "Nakliye bedeli müşteriye aittir.", note3: "Profil gramajları ±%5 tolerans içerebilir.", note4: "Boyalı siparişlerde gramaj %3 artış gösterebilir.", updatePrices: "Fiyatları Güncelle", priceUpdated: "Fiyatlar güncellendi!", login: "Giriş", password: "Şifre", loginBtn: "Giriş Yap", logout: "Çıkış", wrongPassword: "Yanlış şifre!", category: "Kategori", unit: "Birim", search: "Ara...", byd100Desc: "100mm Dikey Zip Perde Sistemi", byd125Desc: "125mm Dikey Zip Perde Sistemi", sky1500Desc: "Yaylı Tavan Perde Sistemi", sky1600Desc: "Amortisörlü Tavan Sistemi", printQuote: "Teklif Yazdır", newQuote: "Yeni Teklif", paintCode: "Boya Kodu" },
+            en: { title: "BAYEDİ - System Price Quote Form", calculator: "Price Calculator", admin: "Admin Panel", products: "Product List", selectSystem: "Select System", dimensions: "Dimensions", width: "Width (mm)", height: "Height (mm)", quantity: "System Quantity", profiles: "Profiles", accessories: "Accessories", totalPrice: "Total Price", unitPrice: "Unit Price", sqmPrice: "Price per m²", totalKg: "Total Weight", area: "Area", code: "Code", product: "Product", gramaj: "Weight (kg/m)", paint: "Paint", totalWeight: "Total Kg", pricePerUnit: "Unit Price (€)", amount: "Amount (€)", qty: "Qty", customerInfo: "Customer Information", companyName: "Company Name", phone: "Phone", email: "Email", orderNo: "Order No", notes: "Important Notes", note1: "Delivery point is our Istanbul Ataşehir factory.", note2: "Shipping cost is customer's responsibility.", note3: "Profile weights may vary by ±5%.", note4: "Painted orders may show 3% weight increase.", updatePrices: "Update Prices", priceUpdated: "Prices updated!", login: "Login", password: "Password", loginBtn: "Login", logout: "Logout", wrongPassword: "Wrong password!", category: "Category", unit: "Unit", search: "Search...", byd100Desc: "100mm Vertical Zip Blind System", byd125Desc: "125mm Vertical Zip Blind System", sky1500Desc: "Spring Ceiling Blind System", sky1600Desc: "Shock Absorber Ceiling System", printQuote: "Print Quote", newQuote: "New Quote", paintCode: "Paint Code" }
+        };
+        const initialProducts = [
+            { code: "10614", name: "ALÜMİNYUM KASA", nameEn: "Aluminum Box", category: "PROFIL", system: "BYD100", unit: "mt", gramaj: 1.401, price: 4.8, paintType: "ALU" },
+            { code: "10613", name: "KASA KAPAK", nameEn: "Box Cover", category: "PROFIL", system: "BYD100", unit: "mt", gramaj: 0.607, price: 4.8, paintType: "ALU" },
+            { code: "10624", name: "ETEK ÇITASI", nameEn: "Bottom Rail", category: "PROFIL", system: "BYD100", unit: "mt", gramaj: 1.087, price: 4.8, paintType: "ALU" },
+            { code: "10623", name: "YAN DİKME KAPAĞI", nameEn: "Side Rail Cover", category: "PROFIL", system: "BYD100", unit: "mt", gramaj: 0.298, price: 4.8, paintType: "ALU" },
+            { code: "10622", name: "YAN DİKME", nameEn: "Side Rail", category: "PROFIL", system: "BYD100", unit: "mt", gramaj: 0.875, price: 4.8, paintType: "ALU" },
+            { code: "10178", name: "78mm GALVANİZ BORU", nameEn: "78mm Galvanized Tube", category: "PROFIL", system: "BYD100", unit: "mt", gramaj: 1.0, price: 5.5, paintType: "GALV" },
+            { code: "10627", name: "ALÜMİNYUM KASA", nameEn: "Aluminum Box", category: "PROFIL", system: "BYD125", unit: "mt", gramaj: 1.709, price: 4.8, paintType: "ALU" },
+            { code: "10626", name: "KASA KAPAK", nameEn: "Box Cover", category: "PROFIL", system: "BYD125", unit: "mt", gramaj: 1.033, price: 4.8, paintType: "ALU" },
+            { code: "10624B", name: "ETEK ÇITASI", nameEn: "Bottom Rail", category: "PROFIL", system: "BYD125", unit: "mt", gramaj: 1.087, price: 4.8, paintType: "ALU" },
+            { code: "10623B", name: "YAN DİKME KAPAĞI", nameEn: "Side Rail Cover", category: "PROFIL", system: "BYD125", unit: "mt", gramaj: 0.298, price: 4.8, paintType: "ALU" },
+            { code: "10622B", name: "YAN DİKME", nameEn: "Side Rail", category: "PROFIL", system: "BYD125", unit: "mt", gramaj: 0.875, price: 4.8, paintType: "ALU" },
+            { code: "10178B", name: "78mm GALVANİZ BORU", nameEn: "78mm Galvanized Tube", category: "PROFIL", system: "BYD125", unit: "mt", gramaj: 1.0, price: 5.5, paintType: "GALV" },
+            { code: "10616", name: "ALÜMİNYUM KASA", nameEn: "Aluminum Box", category: "PROFIL", system: "SKY1500", unit: "mt", gramaj: 2.221, price: 4.8, paintType: "ALU" },
+            { code: "10619", name: "KASA KAPAK", nameEn: "Box Cover", category: "PROFIL", system: "SKY1500", unit: "mt", gramaj: 1.699, price: 4.8, paintType: "ALU" },
+            { code: "10618", name: "ETEK ÇITASI", nameEn: "Bottom Rail", category: "PROFIL", system: "SKY1500", unit: "mt", gramaj: 2.911, price: 4.8, paintType: "ALU" },
+            { code: "10617", name: "ETEK ÇITA KAPAĞI", nameEn: "Bottom Rail Cover", category: "PROFIL", system: "SKY1500", unit: "mt", gramaj: 0.535, price: 4.8, paintType: "ALU" },
+            { code: "10615", name: "YAN DİKME", nameEn: "Side Rail", category: "PROFIL", system: "SKY1500", unit: "mt", gramaj: 2.715, price: 4.8, paintType: "ALU" },
+            { code: "10185S", name: "85mm GALVANİZ BORU", nameEn: "85mm Galvanized Tube", category: "PROFIL", system: "SKY1500", unit: "mt", gramaj: 1.2, price: 8.5, paintType: "GALV" },
+            { code: "10616S", name: "ALÜMİNYUM KASA", nameEn: "Aluminum Box", category: "PROFIL", system: "SKY1600", unit: "mt", gramaj: 2.221, price: 4.8, paintType: "ALU" },
+            { code: "10619S", name: "KASA KAPAK", nameEn: "Box Cover", category: "PROFIL", system: "SKY1600", unit: "mt", gramaj: 1.699, price: 4.8, paintType: "ALU" },
+            { code: "10628", name: "ETEK ÇITASI", nameEn: "Bottom Rail", category: "PROFIL", system: "SKY1600", unit: "mt", gramaj: 3.374, price: 4.8, paintType: "ALU" },
+            { code: "10625", name: "YAN DİKME", nameEn: "Side Rail", category: "PROFIL", system: "SKY1600", unit: "mt", gramaj: 2.089, price: 4.8, paintType: "ALU" },
+            { code: "10185T", name: "85mm GALVANİZ BORU", nameEn: "85mm Galvanized Tube", category: "PROFIL", system: "SKY1600", unit: "mt", gramaj: 1.2, price: 8.5, paintType: "GALV" },
+            { code: "BYD10-114DK", name: "Yan Sac", nameEn: "Side Plate", category: "APARAT", system: "ALL", unit: "tk", qty: 1, price: 10 },
+            { code: "BYD10-113SK", name: "Süs Kapağı", nameEn: "Cover Cap", category: "APARAT", system: "ALL", unit: "tk", qty: 1, price: 10 },
+            { code: "ZG0256", name: "Fermuar Kılavuzu", nameEn: "Zipper Guide", category: "APARAT", system: "ALL", unit: "ad", qty: 4, price: 1.2 },
+            { code: "ZIP-REG-101", name: "Fermuar", nameEn: "Zipper", category: "APARAT", system: "ALL", unit: "mt", qty: 1, price: 2.1 },
+            { code: "WB5-5", name: "Boru Fitil", nameEn: "Tube Gasket", category: "APARAT", system: "ALL", unit: "mt", qty: 1, price: 0.25 },
+            { code: "SKY-YAY-001", name: "Yay Mekanizması", nameEn: "Spring Mechanism", category: "APARAT", system: "SKY1500", unit: "tk", qty: 1, price: 85 },
+            { code: "SKY-AMR-001", name: "Amortisör Seti", nameEn: "Shock Absorber Set", category: "APARAT", system: "SKY1600", unit: "tk", qty: 1, price: 120 },
+            { code: "SKY-MNT-001", name: "Tavan Montaj Seti", nameEn: "Ceiling Mount Set", category: "APARAT", system: "SKY1500", unit: "tk", qty: 1, price: 45 },
+            { code: "SKY-MNT-002", name: "Tavan Montaj Seti Deluxe", nameEn: "Ceiling Mount Set Deluxe", category: "APARAT", system: "SKY1600", unit: "tk", qty: 1, price: 55 },
+        ];
+        const systemConfigs = {
+            BYD100: { name: "BYD100 DİKEY", nameEn: "BYD100 VERTICAL", profileMultipliers: { "10614": { widthMult: 1, heightMult: 0 }, "10613": { widthMult: 1, heightMult: 0 }, "10624": { widthMult: 1, heightMult: 0 }, "10623": { widthMult: 0, heightMult: 2 }, "10622": { widthMult: 0, heightMult: 2 }, "10178": { widthMult: 1, heightMult: 0 } }, defaultAccessories: ["BYD10-114DK", "BYD10-113SK", "ZG0256", "ZIP-REG-101", "WB5-5"] },
+            BYD125: { name: "BYD125 DİKEY", nameEn: "BYD125 VERTICAL", profileMultipliers: { "10627": { widthMult: 1, heightMult: 0 }, "10626": { widthMult: 1, heightMult: 0 }, "10624B": { widthMult: 1, heightMult: 0 }, "10623B": { widthMult: 0, heightMult: 2 }, "10622B": { widthMult: 0, heightMult: 2 }, "10178B": { widthMult: 1, heightMult: 0 } }, defaultAccessories: ["BYD10-114DK", "BYD10-113SK", "ZG0256", "ZIP-REG-101", "WB5-5"] },
+            SKY1500: { name: "SKY1500 YAYLI TAVAN", nameEn: "SKY1500 SPRING CEILING", profileMultipliers: { "10616": { widthMult: 1, heightMult: 0 }, "10619": { widthMult: 1, heightMult: 0 }, "10618": { widthMult: 1, heightMult: 0 }, "10617": { widthMult: 1, heightMult: 0 }, "10615": { widthMult: 0, heightMult: 2 }, "10185S": { widthMult: 1, heightMult: 0 } }, defaultAccessories: ["SKY-YAY-001", "SKY-MNT-001", "ZG0256", "WB5-5"] },
+            SKY1600: { name: "SKY1600 AMORTİSÖRLÜ TAVAN", nameEn: "SKY1600 SHOCK ABSORBER CEILING", profileMultipliers: { "10616S": { widthMult: 1, heightMult: 0 }, "10619S": { widthMult: 1, heightMult: 0 }, "10628": { widthMult: 1, heightMult: 0 }, "10625": { widthMult: 0, heightMult: 2 }, "10185T": { widthMult: 1, heightMult: 0 } }, defaultAccessories: ["SKY-AMR-001", "SKY-MNT-002", "ZG0256", "WB5-5"] }
+        };
+        function App() {
+            const [lang, setLang] = useState('tr');
+            const [activeTab, setActiveTab] = useState('calculator');
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [showLoginModal, setShowLoginModal] = useState(false);
+            const [products, setProducts] = useState(() => { const saved = localStorage.getItem('bayedi_products'); return saved ? JSON.parse(saved) : initialProducts; });
+            const [toast, setToast] = useState(null);
+            const t = translations[lang];
+            const showToast = (message) => { setToast(message); setTimeout(() => setToast(null), 3000); };
+            const handleLogin = (password) => { if (password === 'bayedi2024') { setIsAdmin(true); setShowLoginModal(false); showToast(lang === 'tr' ? 'Giriş başarılı!' : 'Login successful!'); } else { alert(t.wrongPassword); } };
+            const updateProduct = (code, field, value) => { setProducts(prev => { const updated = prev.map(p => p.code === code ? { ...p, [field]: parseFloat(value) || 0 } : p); localStorage.setItem('bayedi_products', JSON.stringify(updated)); return updated; }); };
+            const saveAllPrices = () => { localStorage.setItem('bayedi_products', JSON.stringify(products)); showToast(t.priceUpdated); };
+            return (
+                <div>
+                    <header className="header">
+                        <div className="logo">BAYED<span>İ</span></div>
+                        <div className="header-controls">
+                            <button className="lang-btn" onClick={() => setLang(lang === 'tr' ? 'en' : 'tr')}><i className="fas fa-globe"></i> {lang === 'tr' ? 'EN' : 'TR'}</button>
+                            {isAdmin ? (<button className="admin-btn" onClick={() => setIsAdmin(false)}><i className="fas fa-sign-out-alt"></i> {t.logout}</button>) : (<button className="admin-btn" onClick={() => setShowLoginModal(true)}><i className="fas fa-lock"></i> {t.admin}</button>)}
+                        </div>
+                    </header>
+                    <nav className="nav-tabs">
+                        <div className={`nav-tab ${activeTab === 'calculator' ? 'active' : ''}`} onClick={() => setActiveTab('calculator')}><i className="fas fa-calculator"></i> {t.calculator}</div>
+                        {isAdmin && (<div className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => setActiveTab('admin')}><i className="fas fa-cog"></i> {t.admin}</div>)}
+                        <div className={`nav-tab ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}><i className="fas fa-boxes"></i> {t.products}</div>
+                    </nav>
+                    <main className="container">
+                        {activeTab === 'calculator' && <Calculator products={products} lang={lang} t={t} />}
+                        {activeTab === 'admin' && isAdmin && <AdminPanel products={products} updateProduct={updateProduct} saveAllPrices={saveAllPrices} lang={lang} t={t} />}
+                        {activeTab === 'products' && <ProductList products={products} lang={lang} t={t} />}
+                    </main>
+                    {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} onLogin={handleLogin} t={t} />}
+                    {toast && <div className="toast"><i className="fas fa-check-circle"></i> {toast}</div>}
+                </div>
+            );
+        }
+        function Calculator({ products, lang, t }) {
+            const [selectedSystem, setSelectedSystem] = useState('BYD100');
+            const [width, setWidth] = useState(3000);
+            const [height, setHeight] = useState(3000);
+            const [quantity, setQuantity] = useState(1);
+            const [paintCode, setPaintCode] = useState('7016 TXT');
+            const [customer, setCustomer] = useState({ company: '', phone: '', email: '' });
+            const orderNo = useMemo(() => { const now = new Date(); return `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`; }, []);
+            const calculation = useMemo(() => {
+                const config = systemConfigs[selectedSystem];
+                const widthM = width / 1000;
+                const heightM = height / 1000;
+                const area = widthM * heightM * quantity;
+                const profileResults = [];
+                let totalProfileKg = 0;
+                let totalProfileCost = 0;
+                products.filter(p => p.category === 'PROFIL' && p.system === selectedSystem).forEach(profile => {
+                    const mult = config.profileMultipliers[profile.code] || { widthMult: 1, heightMult: 0 };
+                    const length = (mult.widthMult * widthM) + (mult.heightMult * heightM);
+                    const totalKg = profile.gramaj * length * quantity;
+                    const cost = totalKg * profile.price;
+                    totalProfileKg += totalKg;
+                    totalProfileCost += cost;
+                    profileResults.push({ ...profile, length: length * quantity, totalKg, cost });
+                });
+                const accessoryResults = [];
+                let totalAccessoryCost = 0;
+                const defaultAccessories = config.defaultAccessories || [];
+                products.filter(p => p.category === 'APARAT' && (p.system === 'ALL' || p.system === selectedSystem)).filter(p => defaultAccessories.includes(p.code)).forEach(acc => {
+                    const qty = (acc.unit === 'mt' ? ((acc.code.includes('ZIP') ? heightM * 2 : widthM) * quantity) : (acc.qty || 1) * quantity);
+                    const cost = qty * acc.price;
+                    totalAccessoryCost += cost;
+                    accessoryResults.push({ ...acc, calculatedQty: qty, cost });
+                });
+                const totalPrice = totalProfileCost + totalAccessoryCost;
+                return { profiles: profileResults, accessories: accessoryResults, totalProfileKg, totalProfileCost, totalAccessoryCost, totalPrice, unitPrice: totalPrice / quantity, sqmPrice: totalPrice / area, area };
+            }, [selectedSystem, width, height, quantity, products]);
+            const systems = [{ key: 'BYD100', desc: t.byd100Desc }, { key: 'BYD125', desc: t.byd125Desc }, { key: 'SKY1500', desc: t.sky1500Desc }, { key: 'SKY1600', desc: t.sky1600Desc }];
+            return (
+                <div>
+                    <div className="customer-section">
+                        <div className="card-title"><i className="fas fa-user-tie"></i> {t.customerInfo}</div>
+                        <div className="form-grid">
+                            <div className="form-group"><label>{t.companyName}</label><input type="text" value={customer.company} onChange={e => setCustomer({...customer, company: e.target.value})} placeholder="..." /></div>
+                            <div className="form-group"><label>{t.phone}</label><input type="tel" value={customer.phone} onChange={e => setCustomer({...customer, phone: e.target.value})} placeholder="..." /></div>
+                            <div className="form-group"><label>{t.email}</label><input type="email" value={customer.email} onChange={e => setCustomer({...customer, email: e.target.value})} placeholder="..." /></div>
+                            <div className="form-group"><label>{t.orderNo}</label><input type="text" value={orderNo} readOnly /></div>
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="card-title"><i className="fas fa-th-large"></i> {t.selectSystem}</div>
+                        <div className="system-grid">
+                            {systems.map(sys => (<div key={sys.key} className={`system-card ${selectedSystem === sys.key ? 'selected' : ''}`} onClick={() => setSelectedSystem(sys.key)}><h3>{systemConfigs[sys.key][lang === 'tr' ? 'name' : 'nameEn']}</h3><p>{sys.desc}</p></div>))}
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="card-title"><i className="fas fa-ruler-combined"></i> {t.dimensions}</div>
+                        <div className="form-grid">
+                            <div className="form-group"><label>{t.width}</label><input type="number" value={width} onChange={e => setWidth(parseInt(e.target.value) || 0)} min="500" max="6000" /></div>
+                            <div className="form-group"><label>{t.height}</label><input type="number" value={height} onChange={e => setHeight(parseInt(e.target.value) || 0)} min="500" max="5000" /></div>
+                            <div className="form-group"><label>{t.quantity}</label><input type="number" value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 1)} min="1" max="100" /></div>
+                            <div className="form-group"><label>{t.paintCode}</label><select value={paintCode} onChange={e => setPaintCode(e.target.value)}><option value="7016 TXT">RAL 7016 TXT</option><option value="9016 MAT">RAL 9016 MAT</option><option value="9005 MAT">RAL 9005 MAT</option></select></div>
+                        </div>
+                    </div>
+                    <div className="summary-box">
+                        <div className="summary-item"><div className="label">{t.area}</div><div className="value">{calculation.area.toFixed(2)}</div><div className="unit">m²</div></div>
+                        <div className="summary-item"><div className="label">{t.totalKg}</div><div className="value">{calculation.totalProfileKg.toFixed(2)}</div><div className="unit">kg</div></div>
+                        <div className="summary-item"><div className="label">{t.unitPrice}</div><div className="value">{calculation.unitPrice.toFixed(2)}</div><div className="unit">€</div></div>
+                        <div className="summary-item"><div className="label">{t.sqmPrice}</div><div className="value">{calculation.sqmPrice.toFixed(2)}</div><div className="unit">€/m²</div></div>
+                        <div className="summary-item"><div className="label">{t.totalPrice}</div><div className="value">{calculation.totalPrice.toFixed(2)}</div><div className="unit">€</div></div>
+                    </div>
+                    <div className="card" style={{marginTop: '1.5rem'}}>
+                        <div className="card-title"><i className="fas fa-bars"></i> {t.profiles}</div>
+                        <table className="results-table">
+                            <thead><tr><th>{t.code}</th><th>{t.product}</th><th>{t.gramaj}</th><th>{t.paint}</th><th>{t.totalWeight}</th><th>{t.pricePerUnit}</th><th>{t.amount}</th></tr></thead>
+                            <tbody>
+                                {calculation.profiles.map(p => (<tr key={p.code}><td>{p.code}</td><td>{lang === 'tr' ? p.name : p.nameEn}</td><td>{p.gramaj.toFixed(3)}</td><td>{p.paintType === 'ALU' ? paintCode : 'PRES'}</td><td>{p.totalKg.toFixed(3)}</td><td>{p.price.toFixed(2)} €</td><td><strong>{p.cost.toFixed(2)} €</strong></td></tr>))}
+                                <tr className="total-row"><td colSpan="4">{t.profiles} {t.totalPrice}</td><td>{calculation.totalProfileKg.toFixed(2)} kg</td><td></td><td><strong>{calculation.totalProfileCost.toFixed(2)} €</strong></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="card">
+                        <div className="card-title"><i className="fas fa-puzzle-piece"></i> {t.accessories}</div>
+                        <table className="results-table">
+                            <thead><tr><th>{t.code}</th><th>{t.product}</th><th>{t.unit}</th><th>{t.qty}</th><th>{t.pricePerUnit}</th><th>{t.amount}</th></tr></thead>
+                            <tbody>
+                                {calculation.accessories.map(a => (<tr key={a.code}><td>{a.code}</td><td>{lang === 'tr' ? a.name : a.nameEn}</td><td>{a.unit}</td><td>{a.calculatedQty.toFixed(2)}</td><td>{a.price.toFixed(2)} €</td><td><strong>{a.cost.toFixed(2)} €</strong></td></tr>))}
+                                <tr className="total-row"><td colSpan="5">{t.accessories} {t.totalPrice}</td><td><strong>{calculation.totalAccessoryCost.toFixed(2)} €</strong></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="footer-notes"><h4><i className="fas fa-exclamation-triangle"></i> {t.notes}</h4><ul><li>{t.note1}</li><li>{t.note2}</li><li>{t.note3}</li><li>{t.note4}</li></ul></div>
+                    <div style={{marginTop: '1.5rem', display: 'flex', gap: '1rem'}}><button className="btn btn-primary" onClick={() => window.print()}><i className="fas fa-print"></i> {t.printQuote}</button><button className="btn btn-success" onClick={() => window.location.reload()}><i className="fas fa-plus"></i> {t.newQuote}</button></div>
+                </div>
+            );
+        }
+        function AdminPanel({ products, updateProduct, saveAllPrices, lang, t }) {
+            const [search, setSearch] = useState('');
+            const [filterCategory, setFilterCategory] = useState('ALL');
+            const filteredProducts = products.filter(p => { const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.code.toLowerCase().includes(search.toLowerCase()); const matchCategory = filterCategory === 'ALL' || p.category === filterCategory; return matchSearch && matchCategory; });
+            const categories = [...new Set(products.map(p => p.category))];
+            return (
+                <div className="card">
+                    <div className="card-title"><i className="fas fa-edit"></i> {t.updatePrices}</div>
+                    <div className="form-grid" style={{marginBottom: '1rem'}}>
+                        <div className="form-group"><label>{t.search}</label><input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.search} /></div>
+                        <div className="form-group"><label>{t.category}</label><select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}><option value="ALL">{lang === 'tr' ? 'Tümü' : 'All'}</option>{categories.map(cat => (<option key={cat} value={cat}>{cat}</option>))}</select></div>
+                    </div>
+                    <div className="table-container">
+                        <table className="admin-table">
+                            <thead><tr><th>{t.code}</th><th>{t.product}</th><th>{t.category}</th><th>{t.gramaj}</th><th>{t.pricePerUnit}</th></tr></thead>
+                            <tbody>{filteredProducts.map(product => (<tr key={product.code}><td><strong>{product.code}</strong></td><td>{lang === 'tr' ? product.name : product.nameEn}</td><td>{product.category}</td><td>{product.category === 'PROFIL' && (<input type="number" step="0.001" value={product.gramaj || 0} onChange={e => updateProduct(product.code, 'gramaj', e.target.value)} />)}</td><td><input type="number" step="0.01" value={product.price || 0} onChange={e => updateProduct(product.code, 'price', e.target.value)} style={{width: '100px'}} /><span style={{marginLeft: '0.5rem'}}>€</span></td></tr>))}</tbody>
+                        </table>
+                    </div>
+                    <div style={{marginTop: '1.5rem'}}><button className="btn btn-success" onClick={saveAllPrices}><i className="fas fa-save"></i> {t.updatePrices}</button></div>
+                </div>
+            );
+        }
+        function ProductList({ products, lang, t }) {
+            const [search, setSearch] = useState('');
+            const filteredProducts = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.code.toLowerCase().includes(search.toLowerCase()));
+            const groupedProducts = filteredProducts.reduce((acc, p) => { if (!acc[p.category]) acc[p.category] = []; acc[p.category].push(p); return acc; }, {});
+            return (
+                <div className="card">
+                    <div className="card-title"><i className="fas fa-list"></i> {t.products}</div>
+                    <div className="form-group" style={{marginBottom: '1rem', maxWidth: '300px'}}><input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.search} /></div>
+                    <div className="table-container">
+                        <table className="admin-table">
+                            <thead><tr><th>{t.code}</th><th>{t.product}</th><th>Sistem</th><th>{t.unit}</th><th>{t.gramaj}</th><th>{t.pricePerUnit}</th></tr></thead>
+                            <tbody>{Object.entries(groupedProducts).map(([category, items]) => (<React.Fragment key={category}><tr className="category-header"><td colSpan="6"><i className="fas fa-folder"></i> {category}</td></tr>{items.map(p => (<tr key={p.code}><td><strong>{p.code}</strong></td><td>{lang === 'tr' ? p.name : p.nameEn}</td><td>{p.system}</td><td>{p.unit}</td><td>{p.gramaj ? p.gramaj.toFixed(3) : '-'}</td><td>{p.price.toFixed(2)} €</td></tr>))}</React.Fragment>))}</tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+        function LoginModal({ onClose, onLogin, t }) {
+            const [password, setPassword] = useState('');
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal" onClick={e => e.stopPropagation()}>
+                        <h3><i className="fas fa-lock"></i> {t.login}</h3>
+                        <div className="form-group"><label>{t.password}</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyPress={e => e.key === 'Enter' && onLogin(password)} autoFocus /></div>
+                        <div className="modal-buttons"><button className="btn" onClick={onClose}>İptal</button><button className="btn btn-primary" onClick={() => onLogin(password)}>{t.loginBtn}</button></div>
+                    </div>
+                </div>
+            );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
