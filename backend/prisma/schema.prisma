@@ -1,0 +1,527 @@
+// BAYEDİ ERP Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// KULLANICI & YETKİLENDİRME
+// ═══════════════════════════════════════════════════════════════
+
+enum UserRole {
+  ADMIN       // Sistem yöneticisi
+  DEALER      // Bayi
+  PRODUCTION  // Üretim personeli
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  role          UserRole    @default(DEALER)
+  status        UserStatus  @default(ACTIVE)
+
+  // Bayi ilişkisi (sadece DEALER rolü için)
+  dealerId      String?
+  dealer        Dealer?     @relation(fields: [dealerId], references: [id])
+
+  // Audit
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lastLoginAt   DateTime?
+
+  // İlişkiler
+  quotes        Quote[]
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@index([dealerId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BAYİ SİSTEMİ
+// ═══════════════════════════════════════════════════════════════
+
+model Dealer {
+  id              String    @id @default(uuid())
+  code            String    @unique  // BAY-001 gibi
+  companyName     String
+  taxNumber       String?
+  address         String?
+  city            String?
+  phone           String?
+  email           String?
+
+  // Fiyatlandırma
+  profitMargin    Decimal   @default(0)  // Kâr oranı (%)
+  discountRate    Decimal   @default(0)  // İndirim oranı (%)
+
+  // Logo (base64 veya URL)
+  logoUrl         String?
+
+  // Durum
+  isActive        Boolean   @default(true)
+
+  // Soft delete
+  deletedAt       DateTime?
+
+  // Audit
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // İlişkiler
+  users           User[]
+  customers       Customer[]
+  quotes          Quote[]
+  orders          Order[]
+  inventory       InventoryItem[]
+
+  @@index([code])
+  @@index([isActive])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MÜŞTERİ
+// ═══════════════════════════════════════════════════════════════
+
+model Customer {
+  id            String    @id @default(uuid())
+  dealerId      String
+  dealer        Dealer    @relation(fields: [dealerId], references: [id])
+
+  companyName   String
+  contactName   String?
+  phone         String?
+  email         String?
+  address       String?
+  city          String?
+  taxNumber     String?
+  notes         String?
+
+  // Soft delete
+  deletedAt     DateTime?
+
+  // Audit
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // İlişkiler
+  quotes        Quote[]
+
+  @@index([dealerId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ÜRÜN & PROFİL SİSTEMİ
+// ═══════════════════════════════════════════════════════════════
+
+enum ProductCategory {
+  PROFIL    // Profiller
+  APARAT    // Aparatlar/Aksesuarlar
+  FABRIC    // Kumaşlar
+  MOTOR     // Motorlar
+  REMOTE    // Kumandalar
+}
+
+enum SystemType {
+  BYD100    // 100mm Dikey Zip
+  BYD125    // 125mm Dikey Zip
+  SKY1500   // Yaylı Tavan
+  SKY1600   // Amortisörlü Tavan
+  ALL       // Tüm sistemler
+}
+
+model Product {
+  id            String          @id @default(uuid())
+  code          String          @unique
+  name          String
+  nameEn        String?
+  category      ProductCategory
+  systemType    SystemType      @default(ALL)
+
+  // Ölçüler
+  unit          String          @default("mt")  // mt, ad, tk, m2
+  gramaj        Decimal?        // kg/m (profiller için)
+
+  // Fiyat
+  basePrice     Decimal         @default(0)
+  currency      String          @default("EUR")
+
+  // Profil çarpanları (JSON olarak saklanacak)
+  // { widthMult: 1, heightMult: 0 }
+  multipliers   Json?
+
+  // Boya tipi
+  paintType     String?         // ALU, GALV, PRES
+
+  // Durum
+  isActive      Boolean         @default(true)
+
+  // Soft delete
+  deletedAt     DateTime?
+
+  // Audit
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // İlişkiler
+  quoteItems    QuoteItem[]
+  inventoryItems InventoryItem[]
+
+  @@index([code])
+  @@index([category])
+  @@index([systemType])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TEKLİF SİSTEMİ
+// ═══════════════════════════════════════════════════════════════
+
+enum QuoteStatus {
+  DRAFT       // Taslak
+  SENT        // Gönderildi
+  APPROVED    // Onaylandı
+  REJECTED    // Reddedildi
+  EXPIRED     // Süresi doldu
+  CONVERTED   // Siparişe dönüştü
+}
+
+model Quote {
+  id            String        @id @default(uuid())
+  quoteNumber   String        @unique  // TKL-2024-0001
+
+  // İlişkiler
+  dealerId      String
+  dealer        Dealer        @relation(fields: [dealerId], references: [id])
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  createdById   String
+  createdBy     User          @relation(fields: [createdById], references: [id])
+
+  // Durum
+  status        QuoteStatus   @default(DRAFT)
+
+  // Tarihler
+  validUntil    DateTime?     // Geçerlilik tarihi
+  sentAt        DateTime?
+  approvedAt    DateTime?
+  rejectedAt    DateTime?
+
+  // Fiyatlandırma
+  subtotal      Decimal       @default(0)
+  discountRate  Decimal       @default(0)
+  discountAmount Decimal      @default(0)
+  taxRate       Decimal       @default(20)  // KDV %20
+  taxAmount     Decimal       @default(0)
+  totalAmount   Decimal       @default(0)
+  currency      String        @default("EUR")
+
+  // Notlar
+  notes         String?
+  internalNotes String?
+
+  // Soft delete
+  deletedAt     DateTime?
+
+  // Audit
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // İlişkiler
+  items         QuoteItem[]
+  order         Order?
+
+  @@index([quoteNumber])
+  @@index([dealerId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model QuoteItem {
+  id            String      @id @default(uuid())
+  quoteId       String
+  quote         Quote       @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  // Sistem bilgisi
+  systemType    SystemType
+  lineNumber    Int         // Satır sırası
+
+  // Ölçüler
+  width         Int         // mm
+  height        Int         // mm
+  quantity      Int         @default(1)
+
+  // Boya
+  paintCode     String?     // RAL 7016 TXT
+
+  // İlişkili ürün (opsiyonel)
+  productId     String?
+  product       Product?    @relation(fields: [productId], references: [id])
+
+  // Hesaplanmış değerler
+  unitPrice     Decimal     @default(0)
+  totalPrice    Decimal     @default(0)
+  totalKg       Decimal     @default(0)
+
+  // Detay JSON (profiller, aparatlar, kumaş, motor detayları)
+  details       Json?
+
+  // Kumaş bilgisi
+  includeFabric Boolean     @default(false)
+  fabricPrice   Decimal?    // m² fiyatı
+  fabricTotal   Decimal?
+
+  // Motor bilgisi
+  includeMotor  Boolean     @default(false)
+  motorType     String?     // Somfy, Mosel, Nice
+  motorPrice    Decimal?
+  motorQty      Int?
+  remoteType    String?     // Standart, Timer, Wifi
+  remotePrice   Decimal?
+  remoteQty     Int?
+  motorTotal    Decimal?
+
+  // Audit
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([quoteId])
+  @@index([systemType])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SİPARİŞ SİSTEMİ
+// ═══════════════════════════════════════════════════════════════
+
+enum OrderStatus {
+  PENDING         // Beklemede
+  CONFIRMED       // Onaylandı
+  IN_PRODUCTION   // Üretimde
+  PRODUCED        // Üretildi
+  SHIPPED         // Sevk edildi
+  DELIVERED       // Teslim edildi
+  CANCELLED       // İptal
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  orderNumber   String        @unique  // SIP-2024-0001
+
+  // Tekliften dönüşüm
+  quoteId       String        @unique
+  quote         Quote         @relation(fields: [quoteId], references: [id])
+
+  // Bayi
+  dealerId      String
+  dealer        Dealer        @relation(fields: [dealerId], references: [id])
+
+  // Durum
+  status        OrderStatus   @default(PENDING)
+
+  // Tarihler
+  confirmedAt   DateTime?
+  productionStartedAt DateTime?
+  producedAt    DateTime?
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+
+  // Fiyatlandırma (tekliften kopyalanır)
+  totalAmount   Decimal
+  currency      String        @default("EUR")
+
+  // Notlar
+  notes         String?
+  shippingNotes String?
+
+  // Soft delete
+  deletedAt     DateTime?
+
+  // Audit
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // İlişkiler
+  productionRecipes ProductionRecipe[]
+
+  @@index([orderNumber])
+  @@index([dealerId])
+  @@index([status])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ÜRETİM REÇETESİ
+// ═══════════════════════════════════════════════════════════════
+
+enum ProductionStatus {
+  PENDING     // Beklemede
+  IN_PROGRESS // Üretiliyor
+  COMPLETED   // Tamamlandı
+  ON_HOLD     // Bekletiliyor
+}
+
+model ProductionRecipe {
+  id            String            @id @default(uuid())
+  orderId       String
+  order         Order             @relation(fields: [orderId], references: [id])
+
+  // Sistem bilgisi
+  systemType    SystemType
+  lineNumber    Int
+
+  // Ölçüler
+  width         Int
+  height        Int
+  quantity      Int
+  paintCode     String?
+
+  // Durum
+  status        ProductionStatus  @default(PENDING)
+
+  // Tarihler
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  // Üretim notları
+  notes         String?
+
+  // Audit
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // İlişkiler
+  parts         ProductionPart[]
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model ProductionPart {
+  id            String            @id @default(uuid())
+  recipeId      String
+  recipe        ProductionRecipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  // Parça bilgisi
+  productCode   String
+  productName   String
+
+  // Hesaplanmış değerler
+  length        Decimal?          // metre
+  quantity      Decimal           // adet veya metre
+  unit          String
+  weight        Decimal?          // kg
+
+  // Durum
+  isCompleted   Boolean           @default(false)
+
+  // Audit
+  createdAt     DateTime          @default(now())
+
+  @@index([recipeId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STOK TAKİBİ
+// ═══════════════════════════════════════════════════════════════
+
+model InventoryItem {
+  id            String    @id @default(uuid())
+  dealerId      String
+  dealer        Dealer    @relation(fields: [dealerId], references: [id])
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id])
+
+  // Miktar
+  quantity      Decimal   @default(0)
+  unit          String    @default("mt")
+
+  // Min/Max seviyeler
+  minLevel      Decimal?
+  maxLevel      Decimal?
+
+  // Audit
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // İlişkiler
+  movements     InventoryMovement[]
+
+  @@unique([dealerId, productId])
+  @@index([dealerId])
+  @@index([productId])
+}
+
+enum MovementType {
+  IN        // Giriş
+  OUT       // Çıkış
+  ADJUST    // Düzeltme
+  RETURN    // İade
+}
+
+model InventoryMovement {
+  id              String        @id @default(uuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  // Hareket bilgisi
+  type            MovementType
+  quantity        Decimal
+  previousQty     Decimal
+  newQty          Decimal
+
+  // Referans (sipariş, manuel giriş vs.)
+  referenceType   String?       // ORDER, MANUAL, ADJUSTMENT
+  referenceId     String?
+
+  // Notlar
+  notes           String?
+
+  // Audit
+  createdAt       DateTime      @default(now())
+  createdById     String?
+
+  @@index([inventoryItemId])
+  @@index([type])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIT LOG (KİM NE YAPTI)
+// ═══════════════════════════════════════════════════════════════
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+
+  // İşlem bilgisi
+  action        String    // CREATE, UPDATE, DELETE, LOGIN, LOGOUT
+  entityType    String    // User, Quote, Order, Product
+  entityId      String?
+
+  // Değişiklikler
+  oldValues     Json?
+  newValues     Json?
+
+  // Meta
+  ipAddress     String?
+  userAgent     String?
+
+  // Zaman
+  createdAt     DateTime  @default(now())
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([createdAt])
+}
