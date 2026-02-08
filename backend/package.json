@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "dev:mock": "tsx src/mock-server.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.mock.json",
+    "build:full": "tsc",
     "start": "node dist/mock-server.js",
     "start:full": "node dist/index.js",
     "prisma:generate": "prisma generate",
