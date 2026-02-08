@@ -1,93 +1,100 @@
-# BAYEDİ - Sistem Fiyat Teklif Formu v2
+# BAYEDİ ERP System
 
-Alüminyum perde ve tavan sistemleri için profesyonel fiyat teklif uygulaması.
+Alüminyum perde ve tavan sistemleri için kapsamlı ERP çözümü.
 
-## 🚀 Demo
+## Özellikler
 
-Uygulamayı doğrudan tarayıcınızda açabilirsiniz: [index.html](index.html)
+- 🔐 JWT tabanlı kimlik doğrulama (Admin ve Bayi rolleri)
+- 📊 Otomatik fiyat hesaplama (Excel formüllerine dayalı)
+- 📄 Teklif yönetimi ve PDF oluşturma
+- 📦 Sipariş takibi ve üretim reçeteleri
+- 👥 Müşteri ve bayi yönetimi
+- 📊 Dashboard ve raporlama
 
-## ✨ Özellikler
+## Teknolojiler
 
-### Desteklenen Sistemler
-- **BYD100 DİKEY** - 100mm Dikey Zip Perde Sistemi
-- **BYD125 DİKEY** - 125mm Dikey Zip Perde Sistemi
-- **SKY1500 TAVAN** - Yaylı Tavan Perde Sistemi
-- **SKY1600 TAVAN** - Amortisörlü Tavan Sistemi
+### Backend
+- Node.js + Express + TypeScript
+- Prisma ORM + PostgreSQL
+- JWT Authentication
+- PDFKit for PDF generation
 
-### Fiyat Hesaplama
-- Genişlik, yükseklik ve adet girişi
-- Otomatik profil ağırlık hesabı (Gramaj × Uzunluk × Birim Fiyat)
-- Aparat ve aksesuar hesabı
-- m² fiyatı, birim fiyat ve toplam fiyat gösterimi
+### Frontend
+- React 18 + TypeScript + Vite
+- TailwindCSS
+- Zustand (State Management)
+- TanStack React Query
 
-### 🧵 Kumaş Bölümü (v2 - YENİ)
-- Opsiyonel kumaş ekleme
-- Sistem boyutlarını kullanma veya özel boyut girişi
-- m² başına fiyat girişi
-- Kumaş adeti belirleme
-- Otomatik toplam hesaplama
+## Kurulum
 
-### ⚙️ Motor & Kumanda Bölümü (v2 - YENİ)
-- Motor tipi seçimi (Somfy, Mosel, Nice, Diğer)
-- Motor fiyatı ve adeti
-- Kumanda tipi seçimi (Standart, Timer'lı, Wifi)
-- Kumanda fiyatı ve adeti
-- Otomatik toplam hesaplama
+### Gereksinimler
+- Node.js 18+
+- PostgreSQL 14+
+- npm veya yarn
 
-### Admin Paneli
-- Şifre korumalı erişim (Şifre: `bayedi2024`)
-- Tüm ürün fiyatlarını güncelleme
-- Gramaj değerlerini düzenleme
-- LocalStorage ile veri saklama
+### Backend Kurulumu
 
-### Ek Özellikler
-- 🌐 Çoklu dil desteği (Türkçe / İngilizce)
-- 👤 Müşteri bilgi formu
-- 🎨 Boya kodu seçimi (RAL renkleri)
-- 🖨️ Yazdırma özelliği
-- 📱 Mobil uyumlu tasarım
-
-## 🛠️ Teknolojiler
-
-- React 18 (CDN)
-- Vanilla CSS (Modern tasarım)
-- LocalStorage (Veri saklama)
-- Font Awesome (İkonlar)
-
-## 📦 Kurulum
-
-1. Repoyu klonlayın:
 ```bash
-git clone https://github.com/thorrangonak/bayilogic.git
+cd backend
+npm install
+
+# .env dosyasını oluşturun
+cp .env.example .env
+
+# Veritabanını ayarlayın
+npx prisma migrate dev
+npx prisma db seed
+
+# Geliştirme sunucusunu başlatın
+npm run dev
 ```
 
-2. `index.html` dosyasını tarayıcınızda açın
+### Frontend Kurulumu
 
-**Not:** Sunucu gerekmez, doğrudan tarayıcıda çalışır.
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## 📖 Kullanım
+## Test Hesapları
 
-1. Sistem seçin (BYD100, BYD125, SKY1500, SKY1600)
-2. Boyutları girin (Genişlik mm, Yükseklik mm)
-3. Sistem adedini belirleyin
-4. Boya kodunu seçin
-5. (Opsiyonel) Kumaş eklemek için "Kumaş Dahil Et" kutusunu işaretleyin
-6. (Opsiyonel) Motor eklemek için "Motor Dahil Et" kutusunu işaretleyin
-7. Fiyat otomatik hesaplanır
+| Rol | E-posta | Şifre |
+|-----|---------|-------|
+| Admin | admin@bayedi.com | admin2024 |
+| Bayi | bayi@bayedi.com | bayi2024 |
 
-### Admin Girişi
-- Sağ üst köşedeki 🔒 ikonuna tıklayın
-- Şifre: `bayedi2024`
-- Fiyatları ve gramajları güncelleyebilirsiniz
+## API Endpoints
 
-## 📄 Lisans
+### Authentication
+- `POST /api/auth/login` - Giriş
+- `POST /api/auth/logout` - Çıkış
+- `GET /api/auth/me` - Kullanıcı bilgisi
+
+### Quotes (Teklifler)
+- `GET /api/quotes` - Teklif listesi
+- `POST /api/quotes` - Yeni teklif
+- `GET /api/quotes/:id` - Teklif detayı
+- `POST /api/quotes/:id/items` - Kalem ekle
+- `POST /api/quotes/:id/send` - Teklif gönder
+- `POST /api/quotes/:id/convert` - Siparişe dönüştür
+
+### Orders (Siparişler)
+- `GET /api/orders` - Sipariş listesi
+- `PUT /api/orders/:id/status` - Durum güncelle
+
+### Customers (Müşteriler)
+- `GET /api/customers` - Müşteri listesi
+- `POST /api/customers` - Yeni müşteri
+
+### Dealers (Bayiler) - Admin Only
+- `GET /api/dealers` - Bayi listesi
+- `POST /api/dealers` - Yeni bayi
+
+### Products (Ürünler) - Admin Only
+- `GET /api/products` - Ürün listesi
+- `PUT /api/products/bulk-prices` - Toplu fiyat güncelleme
+
+## Lisans
 
 MIT License
-
-## 👨‍💻 Geliştirici
-
-BAYEDİ A.Ş. için geliştirilmiştir.
-
----
-
-🇹🇷 Made in Turkey
