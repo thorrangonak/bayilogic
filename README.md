@@ -1,29 +1,52 @@
 # BAYEDİ ERP System
 
-Alüminyum perde ve tavan sistemleri için kapsamlı ERP çözümü.
+Modern bayi yönetim ve teklif hesaplama sistemi. Zip perde sistemleri için özel olarak tasarlanmış, çok bayili ERP çözümü.
 
 ## Özellikler
 
-- 🔐 JWT tabanlı kimlik doğrulama (Admin ve Bayi rolleri)
-- 📊 Otomatik fiyat hesaplama (Excel formüllerine dayalı)
-- 📄 Teklif yönetimi ve PDF oluşturma
-- 📦 Sipariş takibi ve üretim reçeteleri
-- 👥 Müşteri ve bayi yönetimi
-- 📊 Dashboard ve raporlama
+### Bayi Yönetimi
+- Çoklu bayi desteği
+- Bayi bazlı kâr marjı ve indirim oranları
+- Bayi kullanıcıları yönetimi
 
-## Teknolojiler
+### Müşteri Yönetimi
+- Bayi bazlı müşteri kayıtları
+- Vergi bilgileri ve iletişim detayları
+
+### Teklif Sistemi
+- Otomatik fiyat hesaplama
+- BYD100, BYD125, SKY1500, SKY1600 sistemleri
+- Profil, aparat, motor ve kumaş hesaplamaları
+- PDF teklif oluşturma
+- Teklif durumu takibi (Taslak → Gönderildi → Onaylandı → Siparişe Dönüştü)
+
+### Sipariş Yönetimi
+- Sipariş durumu takibi
+- Üretim reçetesi oluşturma
+- Durum geçiş workflow'u (PENDING → CONFIRMED → IN_PRODUCTION → READY → SHIPPED → DELIVERED)
+
+### Ürün Kataloğu
+- Profil, aparat, motor, kumanda kategorileri
+- Sistem bazlı ürünler
+- Toplu fiyat güncelleme
+
+## Teknoloji Stack
 
 ### Backend
-- Node.js + Express + TypeScript
-- Prisma ORM + PostgreSQL
-- JWT Authentication
-- PDFKit for PDF generation
+- **Runtime:** Node.js + TypeScript
+- **Framework:** Express.js
+- **ORM:** Prisma
+- **Database:** PostgreSQL
+- **Auth:** JWT
+- **PDF:** PDFKit
 
 ### Frontend
-- React 18 + TypeScript + Vite
-- TailwindCSS
-- Zustand (State Management)
-- TanStack React Query
+- **Framework:** React 18 + TypeScript
+- **Build Tool:** Vite
+- **Styling:** TailwindCSS
+- **State:** Zustand
+- **Data Fetching:** TanStack React Query
+- **Routing:** React Router v6
 
 ## Kurulum
 
@@ -32,7 +55,7 @@ Alüminyum perde ve tavan sistemleri için kapsamlı ERP çözümü.
 - PostgreSQL 14+
 - npm veya yarn
 
-### Backend Kurulumu
+### Backend Kurulum
 
 ```bash
 cd backend
@@ -41,21 +64,77 @@ npm install
 # .env dosyasını oluşturun
 cp .env.example .env
 
-# Veritabanını ayarlayın
+# Database migration
 npx prisma migrate dev
+
+# Seed data
 npx prisma db seed
 
-# Geliştirme sunucusunu başlatın
+# Development server
 npm run dev
 ```
 
-### Frontend Kurulumu
+### Frontend Kurulum
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+## Environment Değişkenleri
+
+### Backend (.env)
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/bayedi"
+JWT_SECRET="your-secret-key"
+PORT=3000
+```
+
+### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+## API Endpoints
+
+### Auth
+- `POST /api/auth/login` - Giriş
+- `GET /api/auth/me` - Kullanıcı bilgisi
+
+### Customers
+- `GET /api/customers` - Liste
+- `POST /api/customers` - Oluştur
+- `GET /api/customers/:id` - Detay
+- `PUT /api/customers/:id` - Güncelle
+- `DELETE /api/customers/:id` - Sil
+
+### Quotes
+- `GET /api/quotes` - Liste
+- `POST /api/quotes` - Oluştur
+- `GET /api/quotes/:id` - Detay
+- `POST /api/quotes/:id/items` - Kalem ekle
+- `POST /api/quotes/:id/send` - Gönder
+- `POST /api/quotes/:id/convert-to-order` - Siparişe dönüştür
+- `POST /api/quotes/calculate` - Fiyat hesapla
+
+### Orders
+- `GET /api/orders` - Liste
+- `GET /api/orders/:id` - Detay
+- `PUT /api/orders/:id/status` - Durum güncelle
+- `GET /api/orders/stats` - İstatistikler
+
+### Products (Admin)
+- `GET /api/products` - Liste
+- `POST /api/products` - Oluştur
+- `PUT /api/products/:id` - Güncelle
+- `PUT /api/products/bulk-prices` - Toplu fiyat güncelleme
+
+### Dealers (Admin)
+- `GET /api/dealers` - Liste
+- `POST /api/dealers` - Oluştur
+- `PUT /api/dealers/:id` - Güncelle
+- `DELETE /api/dealers/:id` - Sil
 
 ## Test Hesapları
 
@@ -64,37 +143,6 @@ npm run dev
 | Admin | admin@bayedi.com | admin2024 |
 | Bayi | bayi@bayedi.com | bayi2024 |
 
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/login` - Giriş
-- `POST /api/auth/logout` - Çıkış
-- `GET /api/auth/me` - Kullanıcı bilgisi
-
-### Quotes (Teklifler)
-- `GET /api/quotes` - Teklif listesi
-- `POST /api/quotes` - Yeni teklif
-- `GET /api/quotes/:id` - Teklif detayı
-- `POST /api/quotes/:id/items` - Kalem ekle
-- `POST /api/quotes/:id/send` - Teklif gönder
-- `POST /api/quotes/:id/convert` - Siparişe dönüştür
-
-### Orders (Siparişler)
-- `GET /api/orders` - Sipariş listesi
-- `PUT /api/orders/:id/status` - Durum güncelle
-
-### Customers (Müşteriler)
-- `GET /api/customers` - Müşteri listesi
-- `POST /api/customers` - Yeni müşteri
-
-### Dealers (Bayiler) - Admin Only
-- `GET /api/dealers` - Bayi listesi
-- `POST /api/dealers` - Yeni bayi
-
-### Products (Ürünler) - Admin Only
-- `GET /api/products` - Ürün listesi
-- `PUT /api/products/bulk-prices` - Toplu fiyat güncelleme
-
 ## Lisans
 
-MIT License
+MIT
